@@ -1,5 +1,4 @@
 ﻿using Foundation;
-using TK.CustomMap.iOSUnified;
 using UIKit;
 using Xamarin;
 using Xamarin.Forms;
@@ -11,7 +10,6 @@ namespace StateMachine.iOS {
 		public override bool FinishedLaunching(UIApplication app, NSDictionary options) {
 			Forms.Init();
 			FormsMaps.Init();
-			TKCustomMapRenderer.InitMapRenderer();
 			LoadApplication(new App());
 
 			return base.FinishedLaunching(app, options);

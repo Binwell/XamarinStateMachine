@@ -2,11 +2,35 @@
 
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:StateMachine"
+             xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
              x:Class="StateMachine.MainPage">
 
-	<Label Text="Welcome to Xamarin Forms!"
-	       VerticalOptions="Center"
-	       HorizontalOptions="Center" />
+
+	<AbsoluteLayout>
+		<maps:Map AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All"/>
+		<ContentView AbsoluteLayout.LayoutBounds="0, 20, 1, 60" AbsoluteLayout.LayoutFlags="XProportional,WidthProportional" Padding="20" x:Name="MainView">
+			<Button Text="Enter address" BackgroundColor="White" BorderColor="Black" BorderRadius="6" BorderWidth="2" Clicked="GotoFindAddressClicked"
+			        HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" x:Name="EnterAddressButton" Scale="0.9" />
+		</ContentView>
+		<ScrollView  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BackgroundColor="#FFFFFF" x:Name="FindAddressView" >
+			<StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Spacing="20" Padding="20">
+				<Entry Placeholder="Enter starting address here" Margin="0,20,0,0"/>
+				<Entry Placeholder="Enter final address here" x:Name="FinalAddressEntry"/>
+				<Button Text="Go" Clicked="GotoShowRouteClicked" x:Name="ShowRouteGoButton" BorderWidth="1"/>
+				<Button Text="Cancel" Clicked="GotoMainClicked" x:Name="ShowRouteCancelButton" BorderWidth="1"/>
+			</StackLayout>
+		</ScrollView>
+		<StackLayout BackgroundColor="#F0FFFFFF" AbsoluteLayout.LayoutBounds="0,1,1,200" AbsoluteLayout.LayoutFlags="YProportional, WidthProportional"
+		             x:Name="ShowRouteView" Padding="20" Spacing="20" IsClippedToBounds="False">
+			<Label Text="Place address info here" HorizontalOptions="FillAndExpand" VerticalOptions="Center" VerticalTextAlignment="Center"/>
+			<Button Text="Go" Clicked="GotoDriveClicked" BorderWidth="1"/>
+			<Button Text="Cancel" Clicked="GotoFindAddressClicked" BorderWidth="1"/>
+		</StackLayout>
+		<StackLayout BackgroundColor="#F0FFFFFF" AbsoluteLayout.LayoutBounds="0,0,1,80" AbsoluteLayout.LayoutFlags="XProportional,WidthProportional"
+		             x:Name="DriveView" Orientation="Horizontal" Padding="20">
+			<Label Text="Place address info here" HorizontalOptions="FillAndExpand" VerticalOptions="Center" VerticalTextAlignment="Center"/>
+			<Button Text="Cancel" Clicked="GotoMainClicked" HorizontalOptions="End" BorderWidth="1"/>
+		</StackLayout>
+	</AbsoluteLayout>
 
 </ContentPage>
