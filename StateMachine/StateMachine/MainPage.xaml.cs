@@ -29,8 +29,8 @@ namespace StateMachine {
 			_storyboard.Add(States.FindAddress, new[] {
 															  new ViewTransition(MainView, AnimationType.Opacity, 0, 100),
 															  new ViewTransition(FindAddressView, AnimationType.Opacity, 1), // Active and visible
-				                                              new ViewTransition(ShowRouteView, AnimationType.TranslationY, 200, delay: 250),
-				                                              new ViewTransition(ShowRouteView, AnimationType.Opacity, 0, 200, delay: 250),
+				                                              new ViewTransition(ShowRouteView, AnimationType.TranslationY, 200),
+				                                              new ViewTransition(ShowRouteView, AnimationType.Opacity, 0, 200),
 				                                              new ViewTransition(ShowRouteGoButton, AnimationType.Scale, 0.8, 0),
 															  new ViewTransition(ShowRouteGoButton, AnimationType.Scale, 1, 300, Easing.BounceOut, 300),
 				                                              new ViewTransition(ShowRouteCancelButton, AnimationType.Scale, 0.8, 0),
