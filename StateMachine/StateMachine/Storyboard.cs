@@ -5,6 +5,14 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace StateMachine {
+	public enum AnimationType {
+		Scale,
+		Opacity,
+		TranslationX,
+		TranslationY,
+		Rotation
+	}
+
 	public class Storyboard {
 		readonly Dictionary<string,ViewTransition[]> _stateTransitions = new Dictionary<string, ViewTransition[]>();
 
@@ -29,30 +37,29 @@ namespace StateMachine {
 			if( !_stateTransitions.ContainsKey(newStateStr))
 				throw new KeyNotFoundException($"There is no state {newState}");
 
-			Task.WhenAll(_stateTransitions[newStateStr].Select(viewTransition => viewTransition.GetTransition(withAnimation)));
-		}
-	}
+			// Get all ViewTransitions 
+			var viewTransitions = _stateTransitions[newStateStr];
 
-	public enum AnimationType {
-		Scale,
-		Opacity,
-		TranslationX,
-		TranslationY,
-		Rotation
+			// Get transition tasks
+			var tasks = viewTransitions.Select(viewTransition => viewTransition.GetTransition(withAnimation));
+
+			// Run all transition tasks
+			Task.WhenAll(tasks);
+		}
 	}
 
 	public class ViewTransition {
 		readonly AnimationType _animationType;
 		readonly int _delay;
-		readonly uint _duration;
+		readonly uint _length;
 		readonly Easing _easing;
 		readonly double _endValue;
 		readonly WeakReference<VisualElement> _targetElementReference;
 
-		public ViewTransition(VisualElement targetElement, AnimationType animationType, double endValue, uint duration = 250, Easing easing = null, int delay = 0) {
+		public ViewTransition(VisualElement targetElement, AnimationType animationType, double endValue, uint length = 250, Easing easing = null, int delay = 0) {
 			_targetElementReference = new WeakReference<VisualElement>(targetElement);
 			_animationType = animationType;
-			_duration = duration;
+			_length = length;
 			_endValue = endValue;
 			_delay = delay;
 			_easing = easing;
@@ -61,17 +68,17 @@ namespace StateMachine {
 		public async Task GetTransition(bool withAnimation) {
 			VisualElement targetElement;
 			if( !_targetElementReference.TryGetTarget(out targetElement) )
-				throw new ObjectDisposedException("ViewTransition target view was disposed");
+				throw new ObjectDisposedException("Target VisualElement was disposed");
 			
 			if ( _delay > 0 )
 				await Task.Delay(_delay);
 
-			withAnimation &= _duration > 0;
+			withAnimation &= _length > 0;
 
 			switch ( _animationType ) {
 				case AnimationType.Scale:
 					if( withAnimation )
-						await targetElement.ScaleTo(_endValue, _duration, _easing);
+						await targetElement.ScaleTo(_endValue, _length, _easing);
 					else
 						targetElement.Scale = _endValue;
 					break;
@@ -82,16 +89,16 @@ namespace StateMachine {
 							break;
 
 						if( targetElement.IsVisible && _endValue < targetElement.Opacity ) {
-							await targetElement.FadeTo(_endValue, _duration, _easing);
+							await targetElement.FadeTo(_endValue, _length, _easing);
 							targetElement.IsVisible = _endValue > 0;
 						}
 						else if( targetElement.IsVisible && _endValue > targetElement.Opacity ) {
-							await targetElement.FadeTo(_endValue, _duration, _easing);
+							await targetElement.FadeTo(_endValue, _length, _easing);
 						}
 						else if( !targetElement.IsVisible && _endValue > targetElement.Opacity ) {
 							targetElement.Opacity = 0;
 							targetElement.IsVisible = true;
-							await targetElement.FadeTo(_endValue, _duration, _easing);
+							await targetElement.FadeTo(_endValue, _length, _easing);
 						}
 					}
 					else {
@@ -102,21 +109,21 @@ namespace StateMachine {
 
 				case AnimationType.TranslationX:
 					if( withAnimation )
-						await targetElement.TranslateTo(_endValue, targetElement.TranslationY, _duration, _easing);
+						await targetElement.TranslateTo(_endValue, targetElement.TranslationY, _length, _easing);
 					else
 						targetElement.TranslationX = _endValue;
 					break;
 
 				case AnimationType.TranslationY:
 					if( withAnimation )
-						await targetElement.TranslateTo(targetElement.TranslationX, _endValue, _duration, _easing);
+						await targetElement.TranslateTo(targetElement.TranslationX, _endValue, _length, _easing);
 					else
 						targetElement.TranslationY = _endValue;
 					break;
 
 				case AnimationType.Rotation:
 					if( withAnimation )
-						await targetElement.RotateTo(_endValue, _duration, _easing);
+						await targetElement.RotateTo(_endValue, _length, _easing);
 					else
 						targetElement.Rotation = _endValue;
 					break;
