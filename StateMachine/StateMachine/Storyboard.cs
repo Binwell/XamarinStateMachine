@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace StateMachine {
-	public class PageStoryboard {
-		readonly List<StateTransition> _stateTransitions = new List<StateTransition>();
+	public class Storyboard {
+		readonly Dictionary<string,ViewTransition[]> _stateTransitions = new Dictionary<string, ViewTransition[]>();
 
 		public void Add(object state, ViewTransition[] viewTransitions) {
 			var stateStr = state?.ToString().ToUpperInvariant();
@@ -14,10 +14,10 @@ namespace StateMachine {
 			if( string.IsNullOrEmpty(stateStr) || viewTransitions == null )
 				throw new NullReferenceException("Value of 'state', 'viewTransitions' cannot be null");
 
-			if( _stateTransitions.Any(t => t.State == stateStr) )
+			if( _stateTransitions.ContainsKey(stateStr) )
 				throw new ArgumentException($"State {state} already added");
 
-			_stateTransitions.Add(new StateTransition(stateStr, viewTransitions));
+			_stateTransitions.Add(stateStr, viewTransitions);
 		}
 
 		public void Go(object newState, bool withAnimation = true) {
@@ -25,27 +25,11 @@ namespace StateMachine {
 
 			if( string.IsNullOrEmpty(newStateStr) )
 				throw new NullReferenceException("Value of newState cannot be null");
-
-			var state = _stateTransitions.FirstOrDefault(t => t.State == newStateStr);
-			if( state == null )
+			
+			if( !_stateTransitions.ContainsKey(newStateStr))
 				throw new KeyNotFoundException($"There is no state {newState}");
 
-			state.Start(withAnimation);
-		}
-
-		class StateTransition {
-			readonly ViewTransition[] _viewTransitions;
-
-			public string State { get; }
-
-			public StateTransition(string state, ViewTransition[] viewTransitions) {
-				State = state;
-				_viewTransitions = viewTransitions;
-			}
-
-			public void Start(bool withAnimation) {
-				Task.WhenAll(_viewTransitions.Select(animationInfo => animationInfo.GetAnimationTask(withAnimation)));
-			}
+			Task.WhenAll(_stateTransitions[newStateStr].Select(viewTransition => viewTransition.GetTransition(withAnimation)));
 		}
 	}
 
@@ -74,23 +58,26 @@ namespace StateMachine {
 			_easing = easing;
 		}
 
-		public async Task GetAnimationTask(bool withAnimation) {
+		public async Task GetTransition(bool withAnimation) {
 			VisualElement targetElement;
 			if( !_targetElementReference.TryGetTarget(out targetElement) )
 				throw new ObjectDisposedException("ViewTransition target view was disposed");
-
-			if( withAnimation && _delay > 0 )
+			
+			if ( _delay > 0 )
 				await Task.Delay(_delay);
+
+			withAnimation &= _duration > 0;
 
 			switch ( _animationType ) {
 				case AnimationType.Scale:
-					if( withAnimation && _duration > 0 )
+					if( withAnimation )
 						await targetElement.ScaleTo(_endValue, _duration, _easing);
 					else
 						targetElement.Scale = _endValue;
 					break;
+
 				case AnimationType.Opacity:
-					if(withAnimation && _duration > 0) {
+					if( withAnimation ) {
 						if( !targetElement.IsVisible && _endValue <= 0 )
 							break;
 
@@ -112,24 +99,28 @@ namespace StateMachine {
 						targetElement.IsVisible = _endValue > 0;
 					}
 					break;
+
 				case AnimationType.TranslationX:
-					if(withAnimation && _duration > 0)
+					if( withAnimation )
 						await targetElement.TranslateTo(_endValue, targetElement.TranslationY, _duration, _easing);
 					else
 						targetElement.TranslationX = _endValue;
 					break;
+
 				case AnimationType.TranslationY:
-					if(withAnimation && _duration > 0)
+					if( withAnimation )
 						await targetElement.TranslateTo(targetElement.TranslationX, _endValue, _duration, _easing);
 					else
 						targetElement.TranslationY = _endValue;
 					break;
+
 				case AnimationType.Rotation:
-					if(withAnimation && _duration > 0)
+					if( withAnimation )
 						await targetElement.RotateTo(_endValue, _duration, _easing);
 					else
 						targetElement.Rotation = _endValue;
 					break;
+
 				default:
 					throw new ArgumentOutOfRangeException();
 			}

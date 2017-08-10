@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace StateMachine {
@@ -10,73 +11,66 @@ namespace StateMachine {
 			Drive
 		}
 
-		readonly PageStoryboard _pageStoryboard = new PageStoryboard();
+		readonly Storyboard _storyboard = new Storyboard();
 
 		public MainPage() {
 			InitializeComponent();
 
-			_pageStoryboard.Add(States.Main, new[] {
+			_storyboard.Add(States.Main, new[] {
 													   new ViewTransition(MainView, AnimationType.Opacity, 1, 300), // Active and visible
+				                                       new ViewTransition(EnterAddressButton, AnimationType.Scale, 0.9, 0),
 													   new ViewTransition(EnterAddressButton, AnimationType.Scale, 1, 300, Easing.BounceOut, 200),
 				                                       new ViewTransition(FindAddressView, AnimationType.Opacity, 0),
 				                                       new ViewTransition(ShowRouteView, AnimationType.TranslationY, 200),
 				                                       new ViewTransition(ShowRouteView, AnimationType.Opacity, 0),
 				                                       new ViewTransition(DriveView, AnimationType.TranslationY, -80),
 				                                       new ViewTransition(DriveView, AnimationType.Opacity, 0),
-				                                       new ViewTransition(ShowRouteGoButton, AnimationType.Scale, 0.8),
-				                                       new ViewTransition(ShowRouteCancelButton, AnimationType.Scale, 0.8)
 			                                       });
-			_pageStoryboard.Add(States.FindAddress, new[] {
+			_storyboard.Add(States.FindAddress, new[] {
 															  new ViewTransition(MainView, AnimationType.Opacity, 0, 100),
 															  new ViewTransition(FindAddressView, AnimationType.Opacity, 1), // Active and visible
-				                                              new ViewTransition(ShowRouteView, AnimationType.TranslationY, 200),
-				                                              new ViewTransition(ShowRouteView, AnimationType.Opacity, 0),
-				                                              new ViewTransition(DriveView, AnimationType.TranslationY, -80),
-				                                              new ViewTransition(DriveView, AnimationType.Opacity, 0),
-				                                              new ViewTransition(EnterAddressButton, AnimationType.Scale, 0.9),
-				                                              new ViewTransition(ShowRouteGoButton, AnimationType.Scale, 1, 300, Easing.BounceOut, 300),
-				                                              new ViewTransition(ShowRouteCancelButton, AnimationType.Scale, 1, 300, Easing.BounceOut, 500)
+				                                              new ViewTransition(ShowRouteView, AnimationType.TranslationY, 200, delay: 250),
+				                                              new ViewTransition(ShowRouteView, AnimationType.Opacity, 0, 200, delay: 250),
+				                                              new ViewTransition(ShowRouteGoButton, AnimationType.Scale, 0.8, 0),
+															  new ViewTransition(ShowRouteGoButton, AnimationType.Scale, 1, 300, Easing.BounceOut, 300),
+				                                              new ViewTransition(ShowRouteCancelButton, AnimationType.Scale, 0.8, 0),
+															  new ViewTransition(ShowRouteCancelButton, AnimationType.Scale, 1, 300, Easing.BounceOut, 500)
 			                                              });
-			_pageStoryboard.Add(States.ShowRoute, new[] {
-															new ViewTransition(MainView, AnimationType.Opacity, 0),
+			_storyboard.Add(States.ShowRoute, new[] {
 															new ViewTransition(FindAddressView, AnimationType.Opacity, 0),
-				                                            new ViewTransition(ShowRouteView, AnimationType.TranslationY, 0, 300), // Active and visible
-				                                            new ViewTransition(ShowRouteView, AnimationType.Opacity, 1, 300), // Active and visible
+				                                            new ViewTransition(ShowRouteView, AnimationType.TranslationY, 0, 300, delay: 250), // Active and visible
+				                                            new ViewTransition(ShowRouteView, AnimationType.Opacity, 1, 0), // Active and visible
 				                                            new ViewTransition(DriveView, AnimationType.TranslationY, -80),
-				                                            new ViewTransition(DriveView, AnimationType.Opacity, 0),
-				                                            new ViewTransition(EnterAddressButton, AnimationType.Scale, 0.9),
-				                                            new ViewTransition(ShowRouteGoButton, AnimationType.Scale, 0.8),
-				                                            new ViewTransition(ShowRouteCancelButton, AnimationType.Scale, 0.8)
+				                                            new ViewTransition(DriveView, AnimationType.Opacity, 0)
 			                                            });
-			_pageStoryboard.Add(States.Drive, new[] {
-														new ViewTransition(MainView, AnimationType.Opacity, 0),
-														new ViewTransition(FindAddressView, AnimationType.Opacity, 0),
+			_storyboard.Add(States.Drive, new[] {
 				                                        new ViewTransition(ShowRouteView, AnimationType.TranslationY, 200),
-				                                        new ViewTransition(ShowRouteView, AnimationType.Opacity, 0),
-				                                        new ViewTransition(DriveView, AnimationType.TranslationY, 0, 300), // Active and visible
-				                                        new ViewTransition(DriveView, AnimationType.Opacity, 1, 300), // Active and visible
-				                                        new ViewTransition(EnterAddressButton, AnimationType.Scale, 0.9),
-				                                        new ViewTransition(ShowRouteGoButton, AnimationType.Scale, 0.8),
-				                                        new ViewTransition(ShowRouteCancelButton, AnimationType.Scale, 0.8)
-			                                        });
+				                                        new ViewTransition(ShowRouteView, AnimationType.Opacity, 0, 0, delay: 250),
+				                                        new ViewTransition(DriveView, AnimationType.TranslationY, 0, 300, delay: 250), // Active and visible
+				                                        new ViewTransition(DriveView, AnimationType.Opacity, 1, 0) // Active and visible
+													});
 
-			_pageStoryboard.Go(States.Main, false);
+			_storyboard.Go(States.Main, false);
 		}
 
-		void GotoFindAddressClicked(object sender, EventArgs e) {
-			_pageStoryboard.Go(States.FindAddress);
+		async void GotoFindAddressClicked(object sender, EventArgs e) {
+			_storyboard.Go(States.FindAddress);
+			await Task.Delay(500);
+			FinalAddressEntry.Focus();
 		}
 
 		void GotoShowRouteClicked(object sender, EventArgs e) {
-			_pageStoryboard.Go(States.ShowRoute);
+			FinalAddressEntry.Unfocus();
+			_storyboard.Go(States.ShowRoute);
 		}
 
 		void GotoDriveClicked(object sender, EventArgs e) {
-			_pageStoryboard.Go(States.Drive);
+			_storyboard.Go(States.Drive);
 		}
 
 		void GotoMainClicked(object sender, EventArgs e) {
-			_pageStoryboard.Go(States.Main);
+			FinalAddressEntry.Unfocus();
+			_storyboard.Go(States.Main);
 		}
 	}
 }
