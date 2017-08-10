@@ -84,13 +84,13 @@ namespace StateMachine {
 
 			switch ( _animationType ) {
 				case AnimationType.Scale:
-					if( withAnimation )
+					if( withAnimation && _duration > 0 )
 						await targetElement.ScaleTo(_endValue, _duration, _easing);
 					else
 						targetElement.Scale = _endValue;
 					break;
 				case AnimationType.Opacity:
-					if( withAnimation ) {
+					if(withAnimation && _duration > 0) {
 						if( !targetElement.IsVisible && _endValue <= 0 )
 							break;
 
@@ -113,19 +113,19 @@ namespace StateMachine {
 					}
 					break;
 				case AnimationType.TranslationX:
-					if( withAnimation )
+					if(withAnimation && _duration > 0)
 						await targetElement.TranslateTo(_endValue, targetElement.TranslationY, _duration, _easing);
 					else
 						targetElement.TranslationX = _endValue;
 					break;
 				case AnimationType.TranslationY:
-					if( withAnimation )
+					if(withAnimation && _duration > 0)
 						await targetElement.TranslateTo(targetElement.TranslationX, _endValue, _duration, _easing);
 					else
 						targetElement.TranslationY = _endValue;
 					break;
 				case AnimationType.Rotation:
-					if( withAnimation )
+					if(withAnimation && _duration > 0)
 						await targetElement.RotateTo(_endValue, _duration, _easing);
 					else
 						targetElement.Rotation = _endValue;

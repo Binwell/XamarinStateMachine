@@ -7,8 +7,8 @@
 
 
 	<AbsoluteLayout>
-		<maps:Map AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All"/>
-		<ContentView AbsoluteLayout.LayoutBounds="0, 20, 1, 60" AbsoluteLayout.LayoutFlags="XProportional,WidthProportional" Padding="20" x:Name="MainView">
+		<maps:Map AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" x:Name="BackgroundMap"/>
+		<ContentView AbsoluteLayout.LayoutBounds="0, 20, 1, 80" AbsoluteLayout.LayoutFlags="XProportional,WidthProportional" Padding="20" x:Name="MainView">
 			<Button Text="Enter address" BackgroundColor="White" BorderColor="Black" BorderRadius="6" BorderWidth="2" Clicked="GotoFindAddressClicked"
 			        HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" x:Name="EnterAddressButton" Scale="0.9" />
 		</ContentView>
